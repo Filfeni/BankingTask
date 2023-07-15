@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BankingTask.API.Data.Enums;
+using System;
 using System.Collections.Generic;
 
 namespace BankingTask.API.Data.Entities
@@ -12,7 +13,7 @@ namespace BankingTask.API.Data.Entities
 
         public int Id { get; set; }
         public string NumeroCuenta { get; set; } = null!;
-        public int TipoCuenta { get; set; }
+        public TipoCuentaEnum TipoCuenta { get; set; }
         public int SaldoInicial { get; set; }
         public bool Estado { get; set; }
         public int ClienteId { get; set; }
