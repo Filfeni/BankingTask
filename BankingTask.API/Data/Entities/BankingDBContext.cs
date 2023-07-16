@@ -38,6 +38,10 @@ namespace BankingTask.API.Data.Entities
 
             modelBuilder.Entity<Cuenta>(entity =>
             {
+                entity.ToTable("Cuenta");
+
+                entity.Property(e => e.SaldoInicial).HasColumnType("decimal(18, 2)");
+
                 entity.Property(e => e.NumeroCuenta)
                     .HasMaxLength(6)
                     .IsUnicode(false)
@@ -79,15 +83,13 @@ namespace BankingTask.API.Data.Entities
 
                 entity.Property(e => e.Identificacion)
                     .HasMaxLength(10)
-                    .IsUnicode(false)
-                    .IsFixedLength();
+                    .IsUnicode(false);
 
                 entity.Property(e => e.Nombre).HasMaxLength(50);
 
                 entity.Property(e => e.Telefono)
                     .HasMaxLength(15)
-                    .IsUnicode(false)
-                    .IsFixedLength();
+                    .IsUnicode(false);
             });
 
             OnModelCreatingPartial(modelBuilder);

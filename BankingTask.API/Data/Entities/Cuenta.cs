@@ -14,7 +14,7 @@ namespace BankingTask.API.Data.Entities
         public int Id { get; set; }
         public string NumeroCuenta { get; set; } = null!;
         public TipoCuentaEnum TipoCuenta { get; set; }
-        public int SaldoInicial { get; set; }
+        public decimal SaldoInicial { get; set; }
         public bool Estado { get; set; }
         public int ClienteId { get; set; }
 
