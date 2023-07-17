@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
-using BankingTask.API.Data.DTOs;
-using BankingTask.API.Data.Entities;
+using BankingTask.BusinessLogic.Services;
+using BankingTask.Data.DTOs;
+using BankingTask.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,20 +13,19 @@ namespace BankingTask.API.Controllers
     {
         private readonly BankingDBContext _context;
         private readonly IMapper _mapper;
+        private readonly IMovimientoService _movimientoService;
 
-        public ReporteController(BankingDBContext context, IMapper mapper)
+        public ReporteController(BankingDBContext context, IMapper mapper, IMovimientoService movimientoService)
         {
             _context = context;
             _mapper = mapper;
+            _movimientoService = movimientoService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ReporteResponseDto>>> GetMovimiento([FromQuery] ReporteRequestDto dto)
         {
-            var movimientosList = _context.Movimientos
-                .Include(x => x.Cuenta)
-                .Include(x => x.Cuenta.Cliente)
-                .Where(x => x.Cuenta.ClienteId == dto.clienteId && x.Fecha >= dto.Desde && x.Fecha <= dto.Hasta);
+            var movimientosList = _movimientoService.GetMovimientoByClienteIdAndFecha(dto);
 
             if (!movimientosList.Any())
             {

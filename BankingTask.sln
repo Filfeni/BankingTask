@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32519.379
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankingTask.API", "BankingTask.API\BankingTask.API.csproj", "{1B19F9E9-0056-486A-B716-86F30C5C50D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BankingTask.API", "BankingTask.API\BankingTask.API.csproj", "{1B19F9E9-0056-486A-B716-86F30C5C50D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankingTask.Data", "BankingTask.Data\BankingTask.Data.csproj", "{4CE8241B-1AF7-4A70-A09C-DFF4F1A8D57D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankingTask.BusinessLogic", "BankingTask.BusinessLogic\BankingTask.BusinessLogic.csproj", "{76CB382A-0DC1-4485-95E0-71532AA7FDD0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{1B19F9E9-0056-486A-B716-86F30C5C50D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B19F9E9-0056-486A-B716-86F30C5C50D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B19F9E9-0056-486A-B716-86F30C5C50D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CE8241B-1AF7-4A70-A09C-DFF4F1A8D57D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CE8241B-1AF7-4A70-A09C-DFF4F1A8D57D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CE8241B-1AF7-4A70-A09C-DFF4F1A8D57D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CE8241B-1AF7-4A70-A09C-DFF4F1A8D57D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76CB382A-0DC1-4485-95E0-71532AA7FDD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76CB382A-0DC1-4485-95E0-71532AA7FDD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76CB382A-0DC1-4485-95E0-71532AA7FDD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76CB382A-0DC1-4485-95E0-71532AA7FDD0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

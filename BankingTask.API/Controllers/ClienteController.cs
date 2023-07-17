@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using BankingTask.API.Data.Entities;
 using AutoMapper;
-using BankingTask.API.Data.DTOs;
-using Humanizer;
+using BankingTask.Data.DTOs;
+using BankingTask.Data.Entities;
+using BankingTask.BusinessLogic.Services;
 
 namespace BankingTask.API.Controllers
 {
@@ -11,19 +11,19 @@ namespace BankingTask.API.Controllers
     [ApiController]
     public class ClienteController : ControllerBase
     {
-        private readonly BankingDBContext _context;
         private readonly IMapper _mapper;
+        private readonly IClienteService _clienteService;
 
-        public ClienteController(BankingDBContext context, IMapper mapper)
+        public ClienteController( IMapper mapper, IClienteService clienteService)
         {
-            _context = context;
             _mapper = mapper;
+            _clienteService = clienteService;
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<ClienteResponseDto>> GetCliente([FromRoute]int id)
         {
-            var cliente = await _context.Clientes.Include(x => x.Persona).FirstOrDefaultAsync(x => x.Id == id);
+            var cliente = await _clienteService.GetCliente(id);
             if (cliente == null)
             {
                 return NotFound();
@@ -41,9 +41,7 @@ namespace BankingTask.API.Controllers
             var clienteEntity = _mapper.Map<Cliente>(dto);
             clienteEntity.Persona = personaEntity;
 
-            _context.Add(clienteEntity);
-
-            await _context.SaveChangesAsync();
+            await _clienteService.CreateCliente(clienteEntity);
 
             return Created("GetCliente", dto);
         }
@@ -51,22 +49,13 @@ namespace BankingTask.API.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<ClienteResponseDto>> UpdateCliente([FromRoute] int id, [FromBody] ClientePutRequestDto dto)
         {
-            var cliente = await _context.Clientes.Include(x => x.Persona).FirstOrDefaultAsync(x => x.Id == id);
+            var cliente = await _clienteService.GetCliente(id);
             if (cliente == null)
             {
                 return NotFound();
             }
 
-            cliente.Contrasena = dto.Contrasena;
-            cliente.Estado = dto.Estado;
-            cliente.Persona.Direccion = dto.Direccion;
-            cliente.Persona.Edad = dto.Edad;
-            cliente.Persona.Genero = dto.Genero;
-            cliente.Persona.Identificacion = dto.Identificacion;
-            cliente.Persona.Nombre = dto.Nombre;
-            cliente.Persona.Telefono = dto.Telefono;
-
-            await _context.SaveChangesAsync();
+            await _clienteService.UpdateCliente(cliente, dto);
 
             var response = _mapper.Map<ClienteResponseDto>(cliente);
 
@@ -76,14 +65,13 @@ namespace BankingTask.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCliente(int id)
         {
-            var cliente = await _context.Clientes.FirstOrDefaultAsync(x => x.Id == id);
+            var cliente = await _clienteService.GetCliente(id);
             if (cliente == null)
             {
                 return NotFound();
             }
 
-            cliente.Estado = false;
-            await _context.SaveChangesAsync();
+            await _clienteService.DeleteCliente(cliente);
 
             return NoContent();
         }

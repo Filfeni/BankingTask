@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
-using BankingTask.API.Data.DTOs;
-using BankingTask.API.Data.Entities;
+using BankingTask.BusinessLogic.Services;
+using BankingTask.Data.DTOs;
+using BankingTask.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,19 +11,21 @@ namespace BankingTask.API.Controllers
     [ApiController]
     public class MovimientoController : ControllerBase
     {
-        private readonly BankingDBContext _context;
         private readonly IMapper _mapper;
+        private readonly ICuentaService _cuentaService;
+        private readonly IMovimientoService _movimientoService;
 
-        public MovimientoController(BankingDBContext context, IMapper mapper)
+        public MovimientoController(IMapper mapper, ICuentaService cuentaService, IMovimientoService movimientoService)
         {
-            _context = context;
             _mapper = mapper;
+            _cuentaService = cuentaService;
+            _movimientoService = movimientoService;
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<MovimientoResponseDto>> GetMovimiento([FromRoute] int id)
         {
-            var movimiento = _context.Movimientos.Include(x => x.Cuenta).Where(x => x.Id == id).FirstOrDefault();
+            var movimiento = await _movimientoService.GetMovimiento(id);
             if (movimiento == null)
             {
                 return NotFound();
@@ -34,16 +37,16 @@ namespace BankingTask.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Movimiento>> CreateMovimiento(MovimientoRequestDto dto)
+        public async Task<ActionResult<MovimientoResponseDto>> CreateMovimiento(MovimientoRequestDto dto)
         {
-            var cuenta = await _context.Cuentas.FirstOrDefaultAsync(x => x.NumeroCuenta == dto.NumeroCuenta);
+            var cuenta = await _cuentaService.GetCuentaByNumeroCuenta(dto.NumeroCuenta);
 
             if (cuenta == null)
             {
                 return NotFound();
             }
-            
-            var ultimoMovimiento = await _context.Movimientos.Where(x => x.CuentaId == cuenta.Id).OrderByDescending(x => x.Fecha).FirstOrDefaultAsync();
+
+            var ultimoMovimiento = await _movimientoService.GetMovimientoByCuenta(cuenta.Id);
             decimal ultimoSaldo = ultimoMovimiento == null ? cuenta.SaldoInicial : ultimoMovimiento.SaldoDisponible;
             
             if (dto.TipoMovimiento == false && dto.Valor > ultimoSaldo)
@@ -55,11 +58,9 @@ namespace BankingTask.API.Controllers
             movimiento.CuentaId = cuenta.Id;
             movimiento.Fecha = DateTime.Now;
             movimiento.SaldoDisponible = dto.TipoMovimiento == true ? ultimoSaldo + movimiento.Valor : ultimoSaldo - movimiento.Valor;
-            _context.Add(movimiento);
-
-            await _context.SaveChangesAsync();
-
-            return Created("GetMovimiento", dto);
+            await _movimientoService.CreateMovimiento(movimiento);
+            var result = _mapper.Map<MovimientoResponseDto>(movimiento);
+            return Created("GetMovimiento", result);
         }
     }
 }

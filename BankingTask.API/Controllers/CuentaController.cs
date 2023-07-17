@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
-using BankingTask.API.Data.DTOs;
-using BankingTask.API.Data.Entities;
+using BankingTask.BusinessLogic.Services;
+using BankingTask.Data.DTOs;
+using BankingTask.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,19 +11,21 @@ namespace BankingTask.API.Controllers
     [ApiController]
     public class CuentaController : ControllerBase
     {
-        private readonly BankingDBContext _context;
         private readonly IMapper _mapper;
+        private readonly ICuentaService _cuentaService;
+        private readonly IClienteService _clienteService;
 
-        public CuentaController(BankingDBContext context, IMapper mapper)
+        public CuentaController(IMapper mapper, ICuentaService cuentaService, IClienteService clienteService)
         {
-            _context = context;
             _mapper = mapper;
+            _cuentaService = cuentaService;
+            _clienteService = clienteService;
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<CuentaResponseDto>> GetCuenta([FromRoute] int id)
         {
-            var cuenta = await _context.Cuentas.Include(x => x.Cliente).Include(x => x.Cliente.Persona).FirstOrDefaultAsync(x => x.Id == id);
+            var cuenta = await _cuentaService.GetCuenta(id);
             if (cuenta == null)
             {
                 return NotFound();
@@ -36,7 +39,7 @@ namespace BankingTask.API.Controllers
         [HttpPost]
         public async Task<ActionResult<Cuenta>> CreateCuenta(CuentaPostRequestDto dto)
         {
-            var cliente = await _context.Clientes.FirstOrDefaultAsync(x => x.Persona.Identificacion == dto.IdentificacionCliente);
+            var cliente = await _clienteService.GetClienteByIdentificacion(dto.IdentificacionCliente);
 
             if (cliente == null)
             {
@@ -45,28 +48,23 @@ namespace BankingTask.API.Controllers
 
             var cuenta = _mapper.Map<Cuenta>(dto);
             cuenta.ClienteId = cliente.Id;
-            _context.Add(cuenta);
-
-            await _context.SaveChangesAsync();
+            await _cuentaService.CreateCuenta(cuenta);
 
             return Created("GetCuenta", dto);
         }
 
         [HttpPatch("{id}")]
-        public async Task<ActionResult<ClienteResponseDto>> UpdateCuenta([FromRoute] int id, [FromBody] CuentaPatchRequestDto dto)
+        public async Task<ActionResult<CuentaResponseDto>> UpdateCuenta([FromRoute] int id, [FromBody] CuentaPatchRequestDto dto)
         {
-            var cuenta = await _context.Cuentas.FirstOrDefaultAsync(x => x.Id == id);
+            var cuenta = await _cuentaService.GetCuenta(id);
             if (cuenta == null)
             {
                 return NotFound();
             }
 
-            cuenta.TipoCuenta = dto.TipoCuenta;
-            cuenta.Estado = dto.Estado;
+            await _cuentaService.UpdateCuenta(cuenta, dto);
 
-            await _context.SaveChangesAsync();
-
-            var response = _mapper.Map<ClienteResponseDto>(cuenta);
+            var response = _mapper.Map<CuentaResponseDto>(cuenta);
 
             return Ok(response);
         }
